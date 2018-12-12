@@ -2,6 +2,8 @@ import torch
 import torch.nn.functional as F
 
 
+train_num = 50000
+
 class Net(torch.nn.Module):
 
     def __init__(self, n_feature, n_hidden, n_output):
@@ -26,8 +28,11 @@ line = file_train.readline()
 x = torch.FloatTensor(4).zero_()
 y = torch.FloatTensor(1).zero_()
 
-for t in range(2000):
-    line = file_train.readline().split(',')
+for t in range(train_num):
+    line = file_train.readline()
+    if line == '':
+        break
+    line = line.split(',')
 
     x[0] = float(line[6])
     x[1] = float(line[7])/10000
@@ -43,4 +48,4 @@ for t in range(2000):
 
 file_train.close()
 torch.save(net.state_dict(),'net_data.pkl')
-print('train complete')
+print('train complete: ',train_num)

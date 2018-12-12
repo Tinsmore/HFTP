@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import csv
 
 
 class Net(torch.nn.Module):
@@ -25,11 +26,19 @@ loss_func = torch.nn.MSELoss()
 file_test = open('dataset/test_data.csv','r')
 line = file_test.readline()
 
+file_out = open('result.csv','w')
+file_out.write('caseid,midprice\n')
+
 x = torch.FloatTensor(4).zero_()
 y = torch.FloatTensor(1).zero_()
 
-for t in range(20):
-    line = file_test.readline().split(',')
+case = 1
+last_predict = 0
+while True:
+    line = file_test.readline()
+    if line == '':
+        break
+    line = line.split(',')
 
     if len(line) > 9:
         x[0] = float(line[6])
@@ -38,7 +47,8 @@ for t in range(20):
         x[3] = float(line[9])/10000
         y[0] = float(line[3])
     else:
-        t -= 1
+        file_out.write(str(case)+','+str(last_predict)+'\n')
+        case += 1
         continue
 
     prediction = net(x)
@@ -47,6 +57,8 @@ for t in range(20):
     loss.backward()
     optimizer.step()     
 
-    print(y.data.numpy(),prediction.data.numpy())
+    last_predict = prediction.data.numpy()[0]
+    #print(y.data.numpy(),prediction.data.numpy())
 
 file_test.close()
+file_out.close()

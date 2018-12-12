@@ -26,7 +26,7 @@ line = file_train.readline()
 x = torch.FloatTensor(4).zero_()
 y = torch.FloatTensor(1).zero_()
 
-for t in range(500):
+for t in range(2000):
     line = file_train.readline().split(',')
 
     x[0] = float(line[6])

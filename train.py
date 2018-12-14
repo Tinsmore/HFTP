@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 
 
-train_num = 50000
+train_num = 200000
 
 class Net(torch.nn.Module):
 

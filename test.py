@@ -34,6 +34,12 @@ y = torch.FloatTensor(1).zero_()
 
 case = 1
 last_predict = 0
+
+while case < 143:
+    line = file_test.readline().split(',')
+    if len(line) < 9:
+        case += 1
+        
 while True:
     line = file_test.readline()
     if line == '':

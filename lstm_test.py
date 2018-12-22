@@ -1,12 +1,14 @@
 import torch
 import numpy as np
+import math
 import LSTM
+
 
 input_size = 1
 hidden_size = 16
 
 net = LSTM.LSTM(input_size, hidden_size)
-net.load_state_dict(torch.load('net_data_lstm.pkl'))
+net.load_state_dict(torch.load('data_lstm.pkl'))
 
 file_test = open('dataset/test_data.csv','r')
 line = file_test.readline()
@@ -21,26 +23,37 @@ while case < 143:
         case += 1
         
 while case <= 1000:
+    series = []
+    series_sum = 0
     x = torch.FloatTensor(10).zero_()
+
     for i in range(10):
         line = file_test.readline().split(',')
-        x[i] = float(line[3])
-    x = x[np.newaxis, :, np.newaxis]
+        series.append(float(line[3]))
+        series_sum += float(line[3])
+    ave = series_sum/10
 
-    prediction = net(x)
-
-    predict = 0
+    end1 = series[8]
+    end2 = series[9]
+    
     for i in range(10):
-        predict += prediction[i][0]
-    predict = predict/10
-    predict = predict.data.numpy()
+        series_sum += (series[i] - ave)*(series[i] - ave)
+    mse = series_sum/10
 
-    #print('predict: ',prediction[-1][0])
-    file_out.write(str(case)+','+str(predict)+'\n')
+    for i in range(10):
+        series[i] = (series[i] - ave)/math.sqrt(mse)
+        x[i] = series[i]
+    x = x[np.newaxis, :, np.newaxis]
+    
+    prediction = net(x).data.numpy()[-1][0]
+    prediction = prediction*math.sqrt(mse) + ave
+
+    #print(end1, end2, prediction)
+
+    file_out.write(str(case)+','+str(prediction)+'\n')
 
     line = file_test.readline()
     case += 1
 
 file_test.close()
 file_out.close()
-print('test complete')

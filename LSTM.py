@@ -7,7 +7,7 @@ class LSTM(torch.nn.Module):
         super(LSTM, self).__init__()
 
         self.hidden_size = hidden_size
-        self.rnn = torch.nn.LSTM(
+        self.lstm = torch.nn.LSTM(
             input_size=input_size,
             hidden_size=hidden_size,
             num_layers=1,
@@ -22,14 +22,14 @@ class LSTM(torch.nn.Module):
     def forward(self, x):
         batch_size = x.size()[1]
         seq_length = x.size()[0]
-        #x = x.view(seq_length, batch_size, -1)
 
         h0 = Variable(torch.zeros(seq_length, batch_size, self.hidden_size))
         c0 = Variable(torch.zeros(seq_length, batch_size, self.hidden_size))
-        outputs, (ht, ct) = self.rnn(x, (h0, c0))
+        outputs, (ht, ct) = self.lstm(x, (h0, c0))
 
         out = outputs[-1]
-        out = self.bn1(self.fc1(out))
+        out = self.fc1(out)
+        out = self.bn1(out)
         out = self.relu(out)
         out = torch.nn.functional.dropout(out, training=self.training)
         out = self.fc2(out)

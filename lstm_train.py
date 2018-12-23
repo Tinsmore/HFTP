@@ -10,7 +10,7 @@ hidden_size = 16
 train_num = 13000
 
 net = LSTM.LSTM(input_size, hidden_size)
-optimizer = torch.optim.SGD(net.parameters(), lr=0.1, momentum=0.8)
+optimizer = torch.optim.SGD(net.parameters(), lr=0.05, momentum=0.8)
 loss_func = torch.nn.MSELoss()
 
 file_train = open('dataset/train_data.csv','r')
@@ -27,19 +27,14 @@ for t in range(train_num):
         series.append(float(line[3]))
         series_sum += float(line[3])
     ave = series_sum/10
-
+    
     for i in range(10):
-        series_sum += (series[i] - ave)*(series[i] - ave)
-    mse = series_sum/10
-
-    for i in range(10):
-        series[i] = (series[i] - ave)/math.sqrt(mse) #
-        x[i] = series[i]
-
+        x[i] = series[i] - ave
+    
     for  i in range(9):
         y[i] = x[i+1]
     line = file_train.readline().split(',')
-    y[9] = (float(line[3]) - ave)/math.sqrt(mse)
+    y[9] = float(line[3]) - ave
 
     x = x[np.newaxis, :, np.newaxis]
     y = y[:, np.newaxis]
@@ -50,7 +45,7 @@ for t in range(train_num):
     loss.backward()
     optimizer.step()    
 
-    #print('y: ',y.data.numpy()[0],' pre: ',prediction.data.numpy()[0], ' loss: ',loss.data.numpy())
+    #print('y: ',y.data.numpy(),' pre: ',prediction.data.numpy())
 
 file_train.close()
 torch.save(net.state_dict(),'data_lstm.pkl')

@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import math
 import LSTM
+import random
 
 
 input_size = 1
@@ -32,22 +33,14 @@ while case <= 1000:
         series.append(float(line[3]))
         series_sum += float(line[3])
     ave = series_sum/10
-
     end1 = series[8]
     end2 = series[9]
-    
-    for i in range(10):
-        series_sum += (series[i] - ave)*(series[i] - ave)
-    mse = series_sum/10
 
     for i in range(10):
-        series[i] = (series[i] - ave)/math.sqrt(mse)
-        x[i] = series[i]
+        x[i] = series[i] - ave
     x = x[np.newaxis, :, np.newaxis]
     
-    prediction = net(x).data.numpy()[-1][0]
-    prediction = prediction*math.sqrt(mse) + ave
-
+    prediction = net(x).data.numpy()[-1][0] + end2 + random.uniform(-0.0001,0.0001)
     #print(end1, end2, prediction)
 
     file_out.write(str(case)+','+str(prediction)+'\n')
